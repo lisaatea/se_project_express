@@ -35,7 +35,7 @@ const deleteItem = (req, res) => {
   const { itemId } = req.params;
   ClothingItem.findByIdAndDelete(itemId)
     .orFail()
-    .then(() => res.status(200).send({}))
+    .then((item) => res.status(200).send(item))
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
@@ -68,9 +68,6 @@ const likeItem = (req, res) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND.code).send({ message: NOT_FOUND.message });
       }
-      if (err.message === "Item not found") {
-        return res.status(NOT_FOUND.code).send({ message: NOT_FOUND.message });
-      }
       if (err.name === "CastError") {
         return res
           .status(INVALID_DATA.code)
@@ -96,9 +93,6 @@ const dislikeItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND.code).send({ message: NOT_FOUND.message });
-      }
-      if (err.message === "Item not found") {
         return res.status(NOT_FOUND.code).send({ message: NOT_FOUND.message });
       }
       if (err.name === "CastError") {
