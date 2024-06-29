@@ -19,7 +19,7 @@ const getUser = (req, res) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       console.error(err);
-      if (err.name === "DocumentNotFound") {
+      if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND.code).send({ message: NOT_FOUND.message });
       }
       if (err.name === "CastError") {

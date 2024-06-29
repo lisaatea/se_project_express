@@ -65,6 +65,9 @@ const likeItem = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(NOT_FOUND.code).send({ message: NOT_FOUND.message });
+      }
       if (err.message === "Item not found") {
         return res.status(NOT_FOUND.code).send({ message: NOT_FOUND.message });
       }
@@ -92,6 +95,9 @@ const dislikeItem = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(NOT_FOUND.code).send({ message: NOT_FOUND.message });
+      }
       if (err.message === "Item not found") {
         return res.status(NOT_FOUND.code).send({ message: NOT_FOUND.message });
       }
