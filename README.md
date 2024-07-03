@@ -2,10 +2,12 @@
 
 A back-end development project completed for the Software Engineering program at Triple Ten. This project focuses on creating a server, with the future goal of providing a working API and user authorization for the Front End WTWR (What to Wear) project.
 
-## Technologies used
+## Technologies/methods used
 
 - Express
 - MongoDB
+- Mongoose
+- Authorization middleware
 - Testing via Postman
 
 ### Project updates
