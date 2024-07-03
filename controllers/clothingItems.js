@@ -42,18 +42,24 @@ const deleteItem = (req, res) => {
     .orFail()
     .then((item) => {
       if (!item) {
-        return res.status(NOT_FOUND.code).send({ message: NOT_FOUND.message });
+        throw new Error(NOT_FOUND.message);
       }
       if (item.owner.toString() !== req.user._id.toString()) {
-        return res.status(FORBIDDEN.code).send({ message: FORBIDDEN.message });
+        throw new Error(FORBIDDEN.message);
       }
       return ClothingItem.findByIdAndDelete(itemId);
     })
     .then((item) => res.status(200).send(item))
     .catch((err) => {
       console.error(err);
-      if (err.name === "DocumentNotFoundError") {
+      if (
+        err.name === "DocumentNotFoundError" ||
+        err.message === NOT_FOUND.message
+      ) {
         return res.status(NOT_FOUND.code).send({ message: NOT_FOUND.message });
+      }
+      if (err.message === FORBIDDEN.message) {
+        return res.status(FORBIDDEN.code).send({ message: FORBIDDEN.message });
       }
       if (err.name === "CastError") {
         return res

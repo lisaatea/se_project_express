@@ -21,7 +21,7 @@ const createUser = (req, res) => {
   return User.findOne({ email })
     .then((user) => {
       if (user) {
-        return res.status(CONFLICT.code).send({ message: CONFLICT.message });
+        throw new Error(CONFLICT.message);
       }
       return bcrypt.hash(password, 10);
     })
@@ -35,6 +35,9 @@ const createUser = (req, res) => {
           .send({ message: INVALID_DATA.message });
       }
       if (err.code === 11000) {
+        return res.status(CONFLICT.code).send({ message: CONFLICT.message });
+      }
+      if (err.message === CONFLICT.message) {
         return res.status(CONFLICT.code).send({ message: CONFLICT.message });
       }
       return res
@@ -53,9 +56,7 @@ const login = (req, res) => {
   return User.findUserByCredentials(email, password)
     .then((user) => {
       if (!user) {
-        return res
-          .status(UNAUTHORIZED.code)
-          .send({ message: UNAUTHORIZED.message });
+        throw new Error(UNAUTHORIZED.message);
       }
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
@@ -102,13 +103,16 @@ const updateCurrentUser = (req, res) => {
     .orFail()
     .then((user) => {
       if (!user) {
-        return res.status(NOT_FOUND.code).send({ message: NOT_FOUND.message });
+        throw new Error(NOT_FOUND.message);
       }
       return res.status(200).send(user);
     })
     .catch((err) => {
       console.error(err);
-      if (err.name === "DocumentNotFoundError") {
+      if (
+        err.name === "DocumentNotFoundError" ||
+        err.message === NOT_FOUND.message
+      ) {
         return res.status(NOT_FOUND.code).send({ message: NOT_FOUND.message });
       }
       if (err.name === "CastError") {
