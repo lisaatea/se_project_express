@@ -41,9 +41,6 @@ const deleteItem = (req, res) => {
   ClothingItem.findById(itemId)
     .orFail()
     .then((item) => {
-      if (!item) {
-        throw new Error(NOT_FOUND.message);
-      }
       if (item.owner.toString() !== req.user._id.toString()) {
         throw new Error(FORBIDDEN.message);
       }
@@ -52,10 +49,7 @@ const deleteItem = (req, res) => {
     .then((item) => res.status(200).send(item))
     .catch((err) => {
       console.error(err);
-      if (
-        err.name === "DocumentNotFoundError" ||
-        err.message === NOT_FOUND.message
-      ) {
+      if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND.code).send({ message: NOT_FOUND.message });
       }
       if (err.message === FORBIDDEN.message) {

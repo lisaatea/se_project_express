@@ -65,9 +65,14 @@ const login = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
+      if (err.message === "Incorrect email or password") {
+        return res
+          .status(UNAUTHORIZED.code)
+          .send({ message: UNAUTHORIZED.message });
+      }
       return res
-        .status(UNAUTHORIZED.code)
-        .send({ message: UNAUTHORIZED.message });
+        .status(SERVER_ERROR.code)
+        .send({ message: SERVER_ERROR.message });
     });
 };
 
@@ -101,21 +106,13 @@ const updateCurrentUser = (req, res) => {
     { new: true, runValidators: true }
   )
     .orFail()
-    .then((user) => {
-      if (!user) {
-        throw new Error(NOT_FOUND.message);
-      }
-      return res.status(200).send(user);
-    })
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       console.error(err);
-      if (
-        err.name === "DocumentNotFoundError" ||
-        err.message === NOT_FOUND.message
-      ) {
+      if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND.code).send({ message: NOT_FOUND.message });
       }
-      if (err.name === "CastError") {
+      if (err.name === "CastError" || err.name === "ValidationError") {
         return res
           .status(INVALID_DATA.code)
           .send({ message: INVALID_DATA.message });
