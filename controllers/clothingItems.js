@@ -8,6 +8,8 @@ const {
 
 const getItems = (req, res) => {
   ClothingItem.find({})
+    .populate("owner")
+    .sort({ createdAt: -1 })
     .then((items) => res.status(200).send(items))
     .catch((err) => {
       console.error(err);
