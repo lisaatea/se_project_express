@@ -76,6 +76,7 @@ const likeItem = (req, res) => {
     { new: true }
   )
     .orFail()
+    .populate("owner")
     .then((updatedItem) => {
       res.status(200).send(updatedItem);
     })
@@ -103,6 +104,7 @@ const dislikeItem = (req, res) => {
     { new: true }
   )
     .orFail()
+    .populate("owner")
     .then((updatedItem) => {
       res.status(200).send(updatedItem);
     })
