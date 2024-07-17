@@ -1,126 +1,90 @@
 const ClothingItem = require("../models/clothingItem");
-const {
-  INVALID_DATA,
-  NOT_FOUND,
-  SERVER_ERROR,
-  FORBIDDEN,
-} = require("../utils/errors");
+const BadRequestError = require("../errors/bad-request-error");
+const NotFoundError = require("../errors/not-found-error");
+const ForbiddenError = require("../errors/forbidden-error");
 
-const getItems = (req, res) => {
+const getItems = (req, res, next) => {
   ClothingItem.find({})
     .populate("owner")
     .sort({ createdAt: -1 })
     .then((items) => res.status(200).send(items))
-    .catch((err) => {
-      console.error(err);
-      return res
-        .status(SERVER_ERROR.code)
-        .send({ message: SERVER_ERROR.message });
-    });
+    .catch(next);
 };
 
-const createItem = (req, res) => {
+const createItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
   ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => {
       res.status(201).send({ data: item });
     })
     .catch((err) => {
-      console.error(err);
       if (err.name === "ValidationError") {
-        return res
-          .status(INVALID_DATA.code)
-          .send({ message: INVALID_DATA.message });
+        next(new BadRequestError("Invalid data provided"));
+      } else {
+        next(err);
       }
-      return res
-        .status(SERVER_ERROR.code)
-        .send({ message: SERVER_ERROR.message });
     });
 };
 
-const deleteItem = (req, res) => {
+const deleteItem = (req, res, next) => {
   const { itemId } = req.params;
   ClothingItem.findById(itemId)
-    .orFail()
+    .orFail(() => new NotFoundError("Item not found"))
     .then((item) => {
       if (item.owner.toString() !== req.user._id.toString()) {
-        throw new Error(FORBIDDEN.message);
+        throw new ForbiddenError("You are not authorized to delete this item");
       }
       return ClothingItem.findByIdAndDelete(itemId);
     })
     .then((item) => res.status(200).send(item))
     .catch((err) => {
-      console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND.code).send({ message: NOT_FOUND.message });
-      }
-      if (err.message === FORBIDDEN.message) {
-        return res.status(FORBIDDEN.code).send({ message: FORBIDDEN.message });
-      }
       if (err.name === "CastError") {
-        return res
-          .status(INVALID_DATA.code)
-          .send({ message: INVALID_DATA.message });
+        next(new BadRequestError("Invalid item ID"));
+      } else {
+        next(err);
       }
-      return res
-        .status(SERVER_ERROR.code)
-        .send({ message: SERVER_ERROR.message });
     });
 };
 
-const likeItem = (req, res) => {
+const likeItem = (req, res, next) => {
   const { itemId } = req.params;
   ClothingItem.findByIdAndUpdate(
     itemId,
     { $addToSet: { likes: req.user._id } },
     { new: true }
   )
-    .orFail()
+    .orFail(() => new NotFoundError("Item not found"))
     .populate("owner")
     .then((updatedItem) => {
       res.status(200).send(updatedItem);
     })
     .catch((err) => {
-      console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND.code).send({ message: NOT_FOUND.message });
-      }
       if (err.name === "CastError") {
-        return res
-          .status(INVALID_DATA.code)
-          .send({ message: INVALID_DATA.message });
+        next(new BadRequestError("Invalid item ID"));
+      } else {
+        next(err);
       }
-      return res
-        .status(SERVER_ERROR.code)
-        .send({ message: SERVER_ERROR.message });
     });
 };
 
-const dislikeItem = (req, res) => {
+const dislikeItem = (req, res, next) => {
   const { itemId } = req.params;
   ClothingItem.findByIdAndUpdate(
     itemId,
     { $pull: { likes: req.user._id } },
     { new: true }
   )
-    .orFail()
+    .orFail(() => new NotFoundError("Item not found"))
     .populate("owner")
     .then((updatedItem) => {
       res.status(200).send(updatedItem);
     })
     .catch((err) => {
-      console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND.code).send({ message: NOT_FOUND.message });
-      }
       if (err.name === "CastError") {
-        return res
-          .status(INVALID_DATA.code)
-          .send({ message: INVALID_DATA.message });
+        next(new BadRequestError("Invalid item ID"));
+      } else {
+        next(err);
       }
-      return res
-        .status(SERVER_ERROR.code)
-        .send({ message: SERVER_ERROR.message });
     });
 };
 

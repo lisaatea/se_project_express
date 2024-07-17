@@ -3,7 +3,7 @@ logs
 *.log
 npm-debug.log*
 
-# Dependency directory
+# Dependency directoryssh-add ~/.ssh/id_ed25519 #
 node_modules
 
 # Optional npm cache directory
@@ -13,3 +13,4 @@ node_modules
 .DS_Store
 .idea
 .vscode
+.env
