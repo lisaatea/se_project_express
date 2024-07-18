@@ -1,15 +1,18 @@
-# WTWR (What to Wear?): Back End
+# WTWR (What to Wear)
 
-A back-end development project completed for the Software Engineering program at Triple Ten. This project focuses on creating a server, with the future goal of providing a working API and user authorization for the Front End WTWR (What to Wear) project.
+A full-stack development project completed for the Software Engineering program at TripleTen. This application reads weather data from a weather API and recommends clothing options added by users based on the data received.
 
-## Technologies/methods used
+## Technologies used
 
-- Express
+- React
 - MongoDB
-- Mongoose
-- Authorization middleware
-- Testing via Postman
+- Express
+- Node
+- API requests
+- Front-end and server-side authentication
+- Figma
+- CSS
 
-### Project updates
+## Domain name:
 
-This project will be built upon as the program progresses, incorporating course learnings to increase functionality with the eventual goal of converting WTWR into a full-stack application.
+(https://wtwr.dockl.com/)
